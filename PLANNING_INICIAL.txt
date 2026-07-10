@@ -1,0 +1,112 @@
+Navegador
+   ↓ HTTPS
+Servidor web en tu casa
+   ↓
+Backend privado
+   ↓
+Red local
+   ├── Envía Wake-on-LAN al PC apagado
+   ├── Comprueba cuándo responde
+   ├── Abre/controla acceso remoto
+   └── Envía comandos: apagar, reiniciar, scripts, etc.
+
+Para cada parte:
+
+1. Encender el PC con Wake-on-LAN
+
+Tu servidor web doméstico puede enviar un “magic packet” a la red local:
+
+wakeonlan AA:BB:CC:DD:EE:FF
+
+Necesitas:
+
+Wake-on-LAN activado en BIOS/UEFI.
+Wake-on-LAN activado en Windows/Linux.
+Saber la MAC del PC destino.
+Que el servidor esté en la misma red local o pueda emitir paquetes broadcast.
+
+2. Detectar cuándo el PC ya está encendido
+
+El backend puede hacer comprobaciones periódicas:
+
+ping 192.168.1.50
+
+O mejor:
+
+comprobar si responde el puerto 3389, 22, 5900, 8000, etc.
+
+Así la web podría mostrar:
+
+Apagado → Encendiendo → Disponible → Conectar
+
+3. Control remoto desde el navegador
+
+Aquí tienes varias opciones:
+
+La más práctica sería usar algo tipo Apache Guacamole. Es una plataforma web que permite conectarte desde el navegador a PCs por:
+
+RDP, ideal para Windows.
+VNC.
+SSH.
+
+Entonces tu web podría tener un botón:
+
+Control remoto
+
+Y abrir una sesión Guacamole embebida o enlazada.
+
+Otra opción sería montar algo propio con WebRTC/VNC/noVNC, pero sería bastante más complejo.
+
+4. Botones para acciones concretas
+
+Sí. En el PC destino podrías tener una pequeña app/agente escuchando comandos solo desde tu red local. Por ejemplo:
+
+POST /shutdown
+POST /restart
+POST /open-steam
+POST /run-backup
+POST /lock
+
+Ese agente podría estar hecho en:
+
+Node.js
+Python/FastAPI
+C#/.NET
+PowerShell con restricciones
+
+Tu web llamaría al backend, y el backend mandaría la orden al PC destino.
+
+5. Apagar el PC
+
+En Windows, el agente podría ejecutar:
+
+shutdown /s /t 0
+
+O para reiniciar:
+
+shutdown /r /t 0
+
+En Linux:
+
+systemctl poweroff
+
+Lo más importante: seguridad
+
+No expondría esto directamente a internet sin protección fuerte. Mínimo:
+
+HTTPS.
+Login fuerte.
+2FA si puedes.
+VPN tipo WireGuard/Tailscale, muy recomendado.
+No exponer puertos internos como RDP directamente.
+Permitir comandos solo desde el servidor.
+Logs de acciones.
+Lista blanca de acciones, nunca ejecutar comandos libres desde la web.
+
+La versión más sólida sería:
+
+Web propia + backend Node/Laravel
+Wake-on-LAN desde el servidor
+Apache Guacamole para escritorio remoto
+Agente local pequeño en el PC destino para acciones personalizadas
+WireGuard/Tailscale para acceso seguro desde fuera. Yo usaria backend con Laravel, Wake-on-LAN en ubuntu (aunque en el .env declararia el sistema que se usa, y usaria un condicional para que funcione en windows, donde lo desarrollo, y en ubutnu, mi servidor de produccion),  Apache Guacamole para escritorio remoto, un pequeño agente local en el pc de destino en node.js (nos conectaremos al pc seguramente por ssh), usar "WireGuard/Tailscale" para acceso seguro desde fuera (aunque tengo que entender como funciona) y para apargarlo usaremos en el backend ssh (el windows destino tiene OpenSSH encendido y activado).

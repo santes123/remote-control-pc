@@ -1,0 +1,65 @@
+Sí, ahora toca esto
+
+Como la conexión RDP ya funciona en Guacamole, el siguiente paso lógico es mover el almacenamiento pesado de Docker a D:.
+Ya he dejado ese procedimiento documentado en README.md.
+Ruta Recomendada
+
+La mejor opción para tu caso es mover el disk image completo de Docker Desktop a D:.
+Eso mueve lo que más suele ocupar: imágenes, capas, cachés y almacenamiento interno de Docker Desktop.
+No hace falta tocar todavía el docker-compose.yml de Guacamole.
+Pasos
+
+Baja el stack de Guacamole:
+
+PowerShell
+
+cd d:\proyects\remote-control-pc\infra\guacamole
+docker compose down
+Abre Docker Desktop.
+Ve a:
+Settings
+Resources
+Advanced
+Busca:
+Disk image location
+Cámbialo a una ruta como:
+D:\DockerDesktop
+Aplica el cambio.
+Docker Desktop debería mover internamente el almacenamiento.
+Cuando termine, vuelve a levantar Guacamole:
+
+PowerShell
+
+cd d:\proyects\remote-control-pc\infra\guacamole
+docker compose up -d
+Verifica que sigue bien:
+
+PowerShell
+
+docker compose ps
+curl.exe -I http://localhost:8080/guacamole/
+Qué Espero Ver
+
+docker compose ps con mysql, guacd y guacamole en running.
+curl.exe -I http://localhost:8080/guacamole/ devolviendo HTTP/1.1 200.
+Login en Guacamole funcionando igual que ahora.
+Si Tu Docker Desktop No Muestra Esa Opción
+
+Algunas versiones cambian un poco la UI.
+Si no ves Disk image location, no toques nada todavía y me lo dices.
+En ese caso te doy el plan B para mover docker-desktop-data a D: sin romperlo.
+Sobre El Usuario Y Pass
+
+Como ya te ha dejado entrar, queda confirmado:
+usuario: guacadmin
+contraseña: guacadmin
+Lo siguiente recomendable dentro de Guacamole es cambiar esa contraseña cuanto antes.
+Después
+
+En cuanto confirmes que Docker ya está usando D: y que Guacamole sigue levantando bien, pasamos con la autenticación básica del panel de Laravel.
+Siguiente Paso
+
+Haz ese cambio en Docker Desktop y dime una de estas dos cosas:
+ya está movido y sigue funcionando
+o no me aparece Disk image location
+Con eso seguimos directamente con authentication del panel.

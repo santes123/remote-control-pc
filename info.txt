@@ -1,0 +1,83 @@
+Pasos para habilitar el servidor SSH:
+Instalar OpenSSH Server: Abre PowerShell como administrador y ejecuta:
+Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+
+Alternativa gráfica: Ve a Configuración > Aplicaciones > Características opcionales > Agregar una característica > Busca Servidor OpenSSH > Instalar. 
+Iniciar y configurar el servicio: En el mismo PowerShell, ejecuta:
+Start-Service sshd
+Set-Service -Name sshd -StartupType 'Automatic'
+
+Configurar el Firewall: Asegúrate de que el puerto 22 esté abierto. Verifica o crea la regla con:
+if (!(Get-NetFirewallRule -Name "OpenSSH-Server-In-TCP" -ErrorAction SilentlyContinue)) {
+    New-NetFirewallRule -Name 'OpenSSH-Server-In-TCP' -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
+}
+
+Una vez configurado, podrás conectarte al equipo Windows desde otros dispositivos mediante ssh usuario@IP_del_equipo
+
+Crear para de claves ssh
+ssh-keygen -t rsa -b 4096 -C "tu_correo@ejemplo.com"
+
+copiar clave privada al servidor por ssh en windows
+scp C:\Users\anton\.ssh\conexion-server-pc.pub anto@192.168.1.16:C:\Users\anto\.ssh\   
+scp C:\Users\<TuUsuario>\.ssh\conexion-server-pc.pub anto@192.168.1.16:C:\ProgramData\ssh\administrators_authorized_keys   
+
+clave ssh privada en archivo ejemplo:
+ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIX69JAHD1II3rpnXU9EC1j+uWGVLjyIFAqr91XVOG/O antonio.gm.ac@gmail.com
+
+
+Configurar inicio automatico windows
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v AutoAdminLogon /t REG_SZ /d 1 /f
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultUserName /t REG_SZ /d "TuUsuario" /f
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultPassword /t REG_SZ /d "TuContraseña" /f   
+
+Si el equipo está unido a un dominio, también debes ejecutar:
+
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultDomainName /t REG_SZ /d "NombreDeTuDominio" /f   
+
+
+utilizar comando inicializacion bbdd docker en cmd
+powershell -ExecutionPolicy Bypass -File .\scripts\initdb.ps1  
+
+
+1. Activar el Escritorio Remoto (PC DESTINO)
+La forma más rápida y directa en las versiones modernas de Windows (Pro, Enterprise o Server) es a través de la configuración del sistema:
+
+Presiona Win + I para abrir Configuración.
+
+Ve a Sistema y luego selecciona Escritorio remoto.
+
+Cambia el interruptor de Escritorio remoto a Activado.
+
+Confirma la acción en la ventana emergente.
+
+⚠️ Nota: El Escritorio remoto nativo de Windows no está disponible en las ediciones Windows Home. Si el PC destino tiene una versión Home, necesitarás actualizar la licencia o recurrir a herramientas de terceros.
+
+2. Configurar el Firewall de Windows para RDP
+
+
+Vía PowerShell (Más rápido)
+Si prefieres la línea de comandos, abre PowerShell como Administrador y ejecuta el siguiente comando para habilitar la regla del firewall:
+
+PowerShell
+Enable-NetFirewallRule -DisplayGroup "Escritorio remoto"
+
+
+CONFIGURAR IP FIJA EN ROUTER O Windows
+
+LEVANTAR DOCKER DE UN .YML
+docker compose up -d
+LEVANTAR DOCKER CONCRETO O UN SUBCONTENEDOR
+docker compose up -d mysql
+
+DESMONTAR UN CONTENEDOR
+docker compose down
+
+BORRAR UN CONTENEDOR/SUBCONTENEDOR CONCRETO
+docker volume rm guacamole_mysql_data
+
+
+Ejecutar un script de seed o init para el docker.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\initdb.ps1  
+
+ 
+http://localhost:8080/guacamole/#/client/MQBjAG15c3Fs
